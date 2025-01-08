@@ -1,6 +1,7 @@
 Kacper:
 1. Tworzenie konta przez użytkownika
 2. Logowanie użytkownika
+3. endpointy Marceliny mogą być obsłużone tylko dla zalogowanych użytkoników
 
 Marcelina:
 1. endpoint do tworzenia magnesu
