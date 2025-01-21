@@ -8,3 +8,8 @@ Marcelina:
 2. endpoint który zwróci wszytskie magnesy danego użytkownika
 3. endpoint do konkretnego magnesu po ID
 4. endpoint który zwróci wszytskie dane użytkownika po ID
+
+Julia:
+- stworzyc przycisk tworzacy ruchome obiekty w loowych miejscach strony
+- zamienic napis na zdjecie w ruchomym obiekcie
+- dodac funkcje dla klikniecia w obiekt
