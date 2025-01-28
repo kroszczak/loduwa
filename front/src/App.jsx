@@ -1,6 +1,16 @@
 import React, { Component } from "react";
 import { Stage, Layer, Image } from "react-konva";
-import { IconButton } from "@chakra-ui/react";
+import {
+  IconButton,
+  Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  ModalFooter,
+  Input,
+  Text,
+} from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 
 const loadImage = (src) => {
@@ -13,16 +23,93 @@ class App extends Component {
   state = {
     objects: [],
     imageSrc: loadImage("kaczka.jpg"),
+    selectedObject: null,
+    isModalOpen: false,
+    modalContent: "",
+    modalHeader: "",
+    isEditing: false,
+    isCreating: false,
   };
 
-  addObject = () => {
+  openCreateModal = () => {
+    this.setState({
+      isCreating: true,
+      modalContent: "",
+      modalHeader: "",
+      isModalOpen: true,
+    });
+  };
+
+  createObject = () => {
+    if (this.state.modalContent.trim() === "" || this.state.modalHeader.trim() === "") {
+      alert("Nagłówek i treść nie mogą być puste!");
+      return;
+    }
+
     const newObject = {
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
+      header: this.state.modalHeader,
+      content: this.state.modalContent,
     };
+
     this.setState((prevState) => ({
       objects: [...prevState.objects, newObject],
+      isModalOpen: false,
+      modalContent: "",
+      modalHeader: "",
+      isCreating: false,
     }));
+  };
+
+  openEditModal = (index) => {
+    const object = this.state.objects[index];
+    this.setState({
+      selectedObject: index,
+      modalHeader: object.header,
+      modalContent: object.content,
+      isModalOpen: true,
+      isEditing: false,
+      isCreating: false,
+    });
+  };
+
+  closeModal = () => {
+    this.setState({
+      selectedObject: null,
+      isModalOpen: false,
+      modalContent: "",
+      modalHeader: "",
+      isEditing: false,
+      isCreating: false,
+    });
+  };
+
+  handleModalContentChange = (e) => {
+    this.setState({ modalContent: e.target.value });
+  };
+
+  handleModalHeaderChange = (e) => {
+    this.setState({ modalHeader: e.target.value });
+  };
+
+  saveContent = () => {
+    const { selectedObject, modalContent, modalHeader, objects } = this.state;
+    const newObjects = [...objects];
+    newObjects[selectedObject] = {
+      ...newObjects[selectedObject],
+      content: modalContent,
+      header: modalHeader,
+    };
+
+    this.setState({
+      objects: newObjects,
+      isEditing: false,
+    });
+  };
+
+  enableEditing = () => {
+    this.setState({ isEditing: true });
   };
 
   handleDragEnd = (e, index) => {
@@ -38,11 +125,10 @@ class App extends Component {
   render() {
     return (
       <div>
-        {/* Chakra UI przycisk */}
         <IconButton
           icon={<AddIcon />}
           aria-label="Dodaj obiekt"
-          onClick={this.addObject}
+          onClick={this.openCreateModal}
           position="absolute"
           top="20px"
           right="20px"
@@ -62,12 +148,62 @@ class App extends Component {
                 draggable
                 image={this.state.imageSrc}
                 onDragEnd={(e) => this.handleDragEnd(e, index)}
+                onClick={(e) => {
+                  if (e.evt.cancelBubble) return;
+                  this.openEditModal(index);
+                }}
                 width={50}
                 height={50}
               />
             ))}
           </Layer>
         </Stage>
+
+        <Modal isOpen={this.state.isModalOpen} onClose={this.closeModal}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalBody>
+              {this.state.isEditing || this.state.isCreating ? (
+                <>
+                  <Input
+                    placeholder="Nagłówek"
+                    value={this.state.modalHeader}
+                    onChange={this.handleModalHeaderChange}
+                    mb={3}
+                  />
+                  <Input
+                    placeholder="Treść"
+                    value={this.state.modalContent}
+                    onChange={this.handleModalContentChange}
+                  />
+                </>
+              ) : (
+                <>
+                  <Text fontWeight="bold">
+                    {this.state.modalHeader || "Brak nagłówka"}
+                  </Text>
+                  <Text>{this.state.modalContent || "Brak treści"}</Text>
+                </>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              {this.state.isCreating ? (
+                <Button colorScheme="blue" onClick={this.createObject}>
+                  Dodaj
+                </Button>
+              ) : this.state.isEditing ? (
+                <Button colorScheme="blue" onClick={this.saveContent}>
+                  Zapisz
+                </Button>
+              ) : (
+                <Button colorScheme="blue" onClick={this.enableEditing}>
+                  Edytuj
+                </Button>
+              )}
+              <Button onClick={this.closeModal}>Anuluj</Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </div>
     );
   }
