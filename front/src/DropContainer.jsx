@@ -16,7 +16,7 @@ const DropContainer = ({ children, onDrop }) => {
   return (
     <Box
       ref={drop}
-      bg="gray.100"
+      bg="red"
       p={4}
       minH="400px"
       border="2px dashed gray"
